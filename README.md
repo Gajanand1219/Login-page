@@ -37,5 +37,11 @@ To use this application, you need to set up a MySQL database. Follow these steps
        `city` VARCHAR(100),
        `password` VARCHAR(100)
    );
+   # Output
+   #
+   **Frant-page
 ![Screenshot 2024-09-22 191505](https://github.com/user-attachments/assets/de001466-f0f8-405c-8a92-a042da68bdf8)
 
+# Backend -table
+
+![Screenshot 2024-09-22 193126](https://github.com/user-attachments/assets/01009e6f-a9e6-4d1d-a9d9-12656b8f2c07)

@@ -302,7 +302,7 @@
 
         /* Input Area */
         .input-container {
-            padding: 24px;
+            padding: 10px;
             background: var(--bg-primary);
             border-top: 1px solid var(--border);
         }
@@ -328,15 +328,14 @@
             border: none;
             color: var(--text-primary);
             font-size: 16px;
-            padding: 16px 20px;
+            padding: 10px 10px;
             outline: none;
             resize: none;
-            min-height: 20px;
-            max-height: 200px;
+            min-height: 10px;
+            max-height: 20px;
             line-height: 1.5;
             font-family: inherit;
             margin-bottom: 20px;
-
         }
 
         textarea::placeholder {
@@ -936,41 +935,38 @@
             }
 
             async sendMessage() {
-                const message = this.elements.messageInput.value.trim();
-                if (!message || this.isTyping) return;
+    const message = this.elements.messageInput.value.trim();
+    if (!message || this.isTyping) return;
 
-                this.addMessage(message, 'user');
-                this.clearInput();
-                this.showTypingIndicator();
-                this.isTyping = true;
+    this.addMessage(message, 'user');
+    this.clearInput();
+    this.showTypingIndicator();
+    this.isTyping = true;
 
-                try {
-                    fetch('https://persinal.onrender.com/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            message: message, 
-                            session_id: this.currentSession 
-                        })
-                    });
+    try {
+        const response = await fetch('https://persinal.onrender.com/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                session_id: this.currentSession
+            })
+        });
 
-                    const data = await response.json();
-                    this.hideTypingIndicator();
-                    this.isTyping = false;
-                    
-                    this.addMessage(data.reply, 'assistant');
-                    
-                    if (data.reply.includes('✅')) {
-                        this.showToast('Information saved to memory!');
-                    }
-                    
-                } catch (error) {
-                    this.hideTypingIndicator();
-                    this.isTyping = false;
-                    this.addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
-                    console.error('Error:', error);
-                }
-            }
+        const data = await response.json();
+
+        this.hideTypingIndicator();
+        this.isTyping = false;
+        this.addMessage(data.reply, 'assistant');
+
+    } catch (error) {
+        this.hideTypingIndicator();
+        this.isTyping = false;
+        this.addMessage('Server error. Please try again.', 'assistant');
+        console.error(error);
+    }
+}
+
 
             addMessage(content, role) {
                 const messageDiv = document.createElement('div');
@@ -1065,38 +1061,37 @@
                 this.elements.sidebarOverlay.classList.toggle('active');
             }
 
-            async addFact() {
-                const fact = this.elements.factInput.value.trim();
-                const category = this.elements.categorySelect.value;
-                
-                if (!fact) {
-                    this.showToast('Please enter a fact', 'error');
-                    return;
-                }
+async addFact() {
+    const fact = this.elements.factInput.value.trim();
+    const category = this.elements.categorySelect.value;
 
-                try {
-                    fetch('https://persinal.onrender.com/add_fact', {
+    if (!fact) {
+        this.showToast('Please enter a fact', 'error');
+        return;
+    }
 
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ fact: fact, category: category })
-                    });
+    try {
+        const response = await fetch('https://persinal.onrender.com/add_fact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fact, category })
+        });
 
-                    const data = await response.json();
-                    
-                    if (data.success) {
-                        this.elements.factInput.value = '';
-                        this.showToast('Fact saved permanently!');
-                        
-                        this.addMessage(`✅ I've saved this to my permanent memory: "${fact}"`, 'assistant');
-                    } else {
-                        this.showToast('Failed to save fact', 'error');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    this.showToast('Error saving fact', 'error');
-                }
-            }
+        const data = await response.json();
+
+        if (data.success) {
+            this.elements.factInput.value = '';
+            this.showToast('Fact saved permanently!');
+            this.addMessage(`✅ Saved to memory: "${fact}"`, 'assistant');
+        } else {
+            this.showToast('Failed to save fact', 'error');
+        }
+
+    } catch (error) {
+        console.error(error);
+        this.showToast('Server error', 'error');
+    }
+}
 
             useSuggestion(text) {
                 if (text === 'Clear chat') {
@@ -1150,5 +1145,4 @@
         });
     </script>
 </body>
-
 </html>
